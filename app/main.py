@@ -2,16 +2,17 @@ from google.cloud import storage
 import json
 import os
 import sys
-import dotenv
+from dotenv import load_dotenv
 from pydantic import BaseModel
 import uvicorn
 from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, File, Form, UploadFile
 
+
 app = FastAPI()
 
 # Get environment variables
-config = dotenv.dotenv_values()
+load_dotenv()
 
 class Upload(BaseModel):
     file: UploadFile
@@ -39,18 +40,18 @@ async def upload(file: UploadFile = File()):
 # Upload files to BUCKET
 def input (contents, destination_blob_name):
     storage_client = storage.Client()
-    bucket = storage_client.bucket(config["BUCKET"])
+    bucket = storage_client.bucket(os.getenv("BUCKET"))
     blob = bucket.blob(destination_blob_name)
 
     blob.upload_from_string(contents)
 
     print(
-        f"{destination_blob_name} uploaded to GCS {config['BUCKET']}"
+        f"{destination_blob_name} uploaded to GCS {os.getenv('BUCKET')}"
     )
 
 # def main():
-#     uvicorn.run("app:app", host="0.0.0.0",
-#                 port=int(config["PORT"]), reload=config["DEVELOPMENT"])
+#     uvicorn.run("main:app", host="0.0.0.0",
+#                 port=int(os.getenv("PORT")), reload=os.getenv("DEVELOPMENT"))
 
 
 # if __name__ == "__main__":
